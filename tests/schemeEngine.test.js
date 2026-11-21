@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { normalizeText, searchSchemes, filterSchemesByCategory, validateFarmerInquiry, calculateEligibilityMatches } from '../src/schemeEngine.js';
+const data = [{ id:'pm-kisan', schemeId:'pm-kisan', title:'PM Kisan', category:'Financial Support', description:'Income support' }, { id:'pm-kusum', schemeId:'pm-kusum', title:'Solar Pump', category:'Renewable Energy', description:'Solar irrigation' }];
+test('normalizes whitespace and case', () => assert.equal(normalizeText('  Crop   LINK '), 'crop link'));
+test('search is case-insensitive', () => assert.equal(searchSchemes(data, 'SOLAR').length, 1));
+test('category filter returns matching category', () => assert.equal(filterSchemesByCategory(data, 'Financial Support')[0].id, 'pm-kisan'));
+test('empty category returns all', () => assert.equal(filterSchemesByCategory(data, 'All').length, 2));
+test('valid inquiry passes', () => assert.equal(validateFarmerInquiry({name:'A',email:'a@b.com',phone:'9876543210',topic:'Help',message:'Hi'}).valid, true));
+test('invalid inquiry reports errors', () => assert.equal(validateFarmerInquiry({}).valid, false));
+test('interest match returns PM-KISAN', () => assert.equal(calculateEligibilityMatches(data,{interest:'income'})[0].schemeId, 'pm-kisan'));
